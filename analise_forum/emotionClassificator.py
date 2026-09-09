@@ -4,6 +4,31 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from transformers import pipeline
+import re
+
+def limpar_texto(texto: str) ->str:
+    if not isinstance(texto, str):
+        return ""
+    """
+    Função para limpar o texto removendo URLs, menções, hashtags e caracteres especiais.
+    """
+    # 1. Remover URLs (http, https, www)
+    texto = re.sub(r'https?://\S+|www\.\S+', '', texto)
+    
+    # 2. Remover menções a usuários (@usuario)
+    texto = re.sub(r'@\w+', '', texto)
+    
+    # 3. Remover tags HTML ou marcadores de formatação Markdown (*, #)
+    texto = re.sub(r'<[^>]+>', '', texto)
+    texto = re.sub(r'[*#_`~]', '', texto)
+    
+    # 4. Normalizar múltiplos espaços em branco e quebras de linha
+    texto = re.sub(r'\s+', ' ', texto).strip()
+
+    # 5. Remover emojis e caracteres especiais
+    texto = re.sub(r'[^\w\s.,!?;:]', '', texto)
+    
+    return texto
 
 warnings.filterwarnings('ignore')
 
@@ -12,20 +37,26 @@ ARQUIVO_ENTRADA = "analise_forum/mensagens_forum.csv"
 ARQUIVO_SAIDA = "analise_forum/resultados_analise.xlsx"
 GRAFICO_SAIDA = "analise_forum/distribuicao_emocoes.png"
 
-# 1. Criar CSV de exemplo caso nao exista
-if not os.path.exists(ARQUIVO_ENTRADA):
-    dados_exemplo = pd.DataFrame({
-        "id_mensagem": range(1, 9),
-        "mensagem": [
+mensagens_teste = [
             "O portal acadêmico está fora do ar de novo na hora da entrega, que ódio!",
             "Achei a discussão do grupo de hoje muito produtiva e esclarecedora.",
             "Estou completamente perdido com os prazos dessa matéria...",
-            "Finalmente consegui entender a lógica do projeto!",
-            "Muito frustrado com a falta de retorno sobre as dúvidas do trabalho.",
-            "Que notícia excelente! Adiaram a data final do projeto.",
-            "Não sei se vou conseguir entregar tudo, bateu o desespero total.",
-            "Ótima explicação na aula de hoje, me ajudou bastante!"
+            "O portal <a href='link'>portal.univ.edu</a> tá travado de novo!! @suporte resolve isso por favor, preciso entregar o TP 😡 https://erro.com/404",
+            "**Excelente** a aula de hoje! Os slides sobre *Processamento de Linguagem Natural* ajudaram bastante a esclarecer as dúvidas. Valeu @caio_monitor 🙌✨",
+            "estou   totalmente   perdido   no   trabalho...   alguém   pode   me   ajudar???    não entendi o enunciado da questão 3 #ajuda",
+            "Gente, adiaram a data de entrega para a próxima sexta!! 🎉🎉🎉 Vejam o aviso oficial em www.forum.edu/avisos_oficiais @todos",
+            "@maria_123 acho que vou reprovar nessa matéria... tirei nota muito baixa no teste e tô bem desanimado 😔",
+            "Alguém sabe se o laboratório de IA vai estar aberto amanhã à tarde? Preciso testar um script `python main.py` lá."
+
         ]
+
+
+
+# 1. Criar CSV de exemplo caso nao exista
+if not os.path.exists(ARQUIVO_ENTRADA):
+    dados_exemplo = pd.DataFrame({
+        "id_mensagem": range(1, len(mensagens_teste) + 1),
+        "mensagem": mensagens_teste
     })
     # Garantir que a pasta analise_forum existe
     os.makedirs("analise_forum", exist_ok=True)
@@ -44,9 +75,13 @@ classificador = pipeline(
 print(f"Lendo mensagens de '{ARQUIVO_ENTRADA}'...")
 df_dados = pd.read_csv(ARQUIVO_ENTRADA)
 
-# 4. Processamento em lote
-mensagens = df_dados['mensagem'].tolist()
-predicoes = classificador(mensagens)
+# 4. Pré-processamento e Processamento em Lote
+print("Aplicando limpeza de texto...")
+df_dados['mensagem_limpa'] = df_dados['mensagem'].apply(limpar_texto)
+
+# Passa a versão LIMPA para a IA analisar
+mensagens_para_classificar = df_dados['mensagem_limpa'].tolist()
+predicoes = classificador(mensagens_para_classificar)
 
 df_dados['Emocao'] = [p['label'] for p in predicoes]
 df_dados['Confianca'] = [round(p['score'], 4) for p in predicoes]
