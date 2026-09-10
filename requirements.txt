@@ -1,0 +1,8 @@
+pandas
+matplotlib
+seaborn
+transformers
+torch
+openpyxl
+pysentimiento
+datasets
