@@ -4,13 +4,19 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit)
 ![Hugging Face](<https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Transformers-yellow?style=for-the-badge>)
+![Pytest](https://img.shields.io/badge/Pytest-Testing-0A9EDC?style=for-the-badge&logo=pytest)
 ![Pandas](<https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=for-the-badge&logo=pandas>)
 ![Seaborn](<https://img.shields.io/badge/Seaborn-Data%20Viz-3776AB?style=for-the-badge>)
-![OpenPyXL](<https://img.shields.io/badge/OpenPyXL-Excel%20Export-217346?style=for-the-badge>)
 
 [PT-BR] Pipeline modular e aplicação web em Python para extração de avaliações da Google Play Store, limpeza estrita de texto, classificação multi-classe de emoções por IA e geração de relatórios estatísticos (Excel/PNG) para fóruns e apps.
 
 [EN] A modular Python pipeline and web app for extracting Google Play Store reviews, strict text pre-processing, AI-driven multi-class emotion classification, and statistical reporting (Excel/PNG) for forums and mobile apps.
+
+<!-- Demo GIF -->
+
+<p align="center">
+  <img src="analise_forum/dados/demo.gif" alt="Streamlit Dashboard Demo" width="100%"/>
+</p>
 
 ---
 
@@ -28,6 +34,7 @@
 * **Scraping / Ingestão:** `google-play-scraper`
 * **NLP Model:** `pysentimiento/bert-pt-emotion` (BERT fine-tuned para português)
 * **Pre-processing:** Expressões Regulares (`re`) com remoção de URLs, e-mails, menções, hashtags, HTML, emojis e pontuações, preservando a carga semântica do texto.
+* **Testing:** PyTest (validação de pré-processamento e regras Regex)
 * **Data Manipulation & Export:** Pandas & OpenPyXL
 * **Visualization:** Seaborn & Matplotlib (gráficos HD com paleta semântica por emoção)
 * **Version Control:** Git & GitHub
@@ -41,26 +48,30 @@
 3. **Classificação por IA (`classifier.py`):** Realiza a inferência em lote utilizando o modelo *Transformer* (`pysentimiento`) para definir a emoção e o grau de confiança.
 4. **Relatórios HD (`reporter.py`):** Salva a planilha detalhada com resumo percentual em `resultados_analise.xlsx` e o gráfico estilizado em alta resolução (300 DPI) com cores semânticas em `distribuicao_emocoes.png`.
 5. **Dashboard Web (`app.py`):** Interface interativa em Streamlit para raspagem, análise ao vivo, filtros por emoção e download dos relatórios.
+6. **Suíte de Testes (`tests/`):** Testes unitários para garantia de integridade das funções de limpeza.
 
 ---
 
 ## 📁 Estrutura do Projeto / Project Structure
 
 ```text
-analise-emocional-foruns/
+sanalise-emocional-foruns/
 ├── analise_forum/
 │   ├── dados/
-│   │   └── mensagens_forum.csv       # Dataset de entrada padrão
+│   │   ├── mensagens_forum.csv        # Dataset de entrada padrão
+│   │   └── demo.gif                   # GIF demonstrativo do Dashboard
 │   ├── resultados/
-│   │   ├── resultados_analise.xlsx   # Relatório Excel (Detalhes + Resumo)
+│   │   ├── resultados_analise.xlsx    # Relatório Excel (Detalhes + Resumo)
 │   │   └── distribuicao_emocoes.png  # Gráfico gerado em alta resolução (300 DPI)
-│   ├── app.py                        # Interface Web Interativa (Streamlit)
-│   ├── cleaner.py                    # Sanitização estrita de texto
-│   ├── classifier.py                 # Interface com o modelo Hugging Face
-│   ├── collector.py                  # Scraper de avaliações da Play Store
-│   ├── reporter.py                   # Gerador de relatórios Excel e gráficos HD
-│   └── main.py                       # Script orquestrador via CLI
+│   ├── tests/
+│   │   └── test_Cleaner.py           # Testes unitários (PyTest)
+│   ├── app.py                         # Interface Web Interativa (Streamlit)
+│   ├── cleaner.py                     # Sanitização estrita de texto
+│   ├── classifier.py                  # Interface com o modelo Hugging Face
+│   ├── collector.py                   # Scraper de avaliações da Play Store
+│   ├── reporter.py                    # Gerador de relatórios Excel e gráficos HD
+│   └── main.py                        # Script orquestrador via CLI
 ├── .gitignore
-├── requirements.txt                  # Lista de dependências do projeto
+├── requirements.txt                   # Lista de dependências do projeto
 └── README.md
 ```
