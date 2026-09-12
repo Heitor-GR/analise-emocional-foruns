@@ -8,3 +8,4 @@ pysentimiento
 datasets
 google-play-scraper
 streamlit
+pytest
